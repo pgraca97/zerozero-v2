@@ -46,7 +46,7 @@ Add a dependency to the game: `pnpm --filter @zerozero/web add <pkg>`.
 - **Phaser → React** (state): `loading-progress`, `preload-complete`, `score-changed`, `lives-changed`, `level-changed`, `powerup-activated`, `powerup-cleared`, `game-over`, `level-won`, `paused`, `resumed`.
 - **React → Phaser** (commands): `cmd-start` `{levelIndex, keepScore?}`, `cmd-pause`, `cmd-resume`, `cmd-quit`, `cmd-mute`.
 
-**React side** — [src/App.tsx](apps/web/src/App.tsx) is a screen state machine (`loading|menu|levelSelect|settings|playing|paused|gameOver|won`). It subscribes to EventBus on mount, renders `<PhaserGame>` (always mounted) plus screens/overlays from [src/ui/](apps/web/src/ui/). The HUD/menus are plain DOM over the canvas. `<PhaserGame>` mounts one `Phaser.Game` for the component's lifetime (no StrictMode — it would double-mount the game).
+**React side** — [src/App.tsx](apps/web/src/App.tsx) is a screen state machine (`loading|menu|levelSelect|settings|playing|paused|gameOver|won`). It subscribes to EventBus on mount, renders `<PhaserGame>` (always mounted) plus screens/overlays from [src/ui/](apps/web/src/ui/). The HUD/menus are plain DOM over the canvas. `<PhaserGame>` mounts one `Phaser.Game` for the component's lifetime (no StrictMode — it would double-mount the game). **Phaser is lazy-loaded** there via `import()` so React paints first; a small plugin in [vite.config.ts](apps/web/vite.config.ts) adds `modulepreload` for lazy chunks. Never add a static `import Phaser` (value import) to anything reachable from `App.tsx` — it would pull Phaser back into the entry chunk (`import type` is fine).
 
 **Phaser side** — scene flow `Boot → Preload → Game` ([src/game/scenes/](apps/web/src/game/scenes/)). Key point: **the `Game` scene is started once and never restarted** — it stays alive across levels and pauses. `cmd-start` calls `startLevel()` which clears groups and rebuilds; EventBus command listeners are registered once in `create()`. A `phase` field (`idle|playing|over`) gates `update()`.
 
@@ -65,7 +65,7 @@ Add a dependency to the game: `pnpm --filter @zerozero/web add <pkg>`.
 ## Conventions & gotchas
 
 - **Add a power-up**: extend `PowerUpType` (types.ts) → add a `POWER_UPS` entry → handle it in `applyEffect`/`clearActivePowerUp` in `Game.ts` → (the sprite key is derived in config.ts from `POWER_UP_FILE`).
-- **DEV-only code** is gated by `import.meta.env.DEV` (tree-shaken from prod). Press **`P`** in a dev build to cycle-spawn a power-up at center — used for manual + e2e testing.
+- **DEV-only code** is gated by `import.meta.env.DEV` (tree-shaken from prod). Press **`P`** in a dev build to cycle-spawn a power-up at center — used for manual + e2e testing. Dev builds also expose the Game scene as `window.__ZZ_GAME__` (read ball/paddle state, call scene methods from Playwright `page.evaluate`).
 - **Dependency pins that matter**: `@vitejs/plugin-react` must stay on **`^4`** (v6 requires Vite 7). pnpm builds esbuild via `allowBuilds` in `pnpm-workspace.yaml`.
 - Accessibility: gameplay announcements go through the `#game-announcer` live region via `announce()` ([src/state/announce.ts](apps/web/src/state/announce.ts)).
 
