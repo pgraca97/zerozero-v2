@@ -49,3 +49,12 @@ test('dev power-up spawn activates and surfaces in the HUD', async ({ page }) =>
   await expect(page.locator('.pu-label')).toBeVisible({ timeout: 9_000 });
   expect(errors).toEqual([]);
 });
+
+test('levels menu entry is locked', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('./');
+
+  await expect(page.getByRole('button', { name: 'Levels' })).toBeDisabled({ timeout: 20_000 });
+
+  expect(errors).toEqual([]);
+});

@@ -1,4 +1,4 @@
-import { LEVELS } from '../../game/data/levels';
+import { isLevelUnlocked } from '../../game/data/levels';
 import type { GameOverPayload, LevelInfo } from '../../game/types';
 
 export function LoadingOverlay({ progress }: { progress: number }) {
@@ -55,7 +55,7 @@ export function WinOverlay(
     onQuit: () => void;
   },
 ) {
-  const hasNext = level != null && level.index < LEVELS.length - 1;
+  const hasNext = level != null && isLevelUnlocked(level.index + 1);
   return (
     <div className="overlay dim">
       <h2 className="screen-title success">You Win!</h2>

@@ -13,7 +13,8 @@ export function MainMenu({ highScore, onPlay, onLevelSelect, onSettings }: Props
       <img className="title" src={assetUrl('zerozero.png')} alt="ZeroZero" />
       <div className="menu-buttons">
         <button className="btn primary" onClick={onPlay} autoFocus>Play</button>
-        <button className="btn" onClick={onLevelSelect}>Levels</button>
+        {/* Locked until levels are designed; the backend comes first. Drop `disabled` to re-enable. */}
+        <button className="btn" onClick={onLevelSelect} disabled>Levels</button>
         <button className="btn" onClick={onSettings}>Settings</button>
       </div>
       <p className="hint">Arrow keys / mouse to move &middot; Space to launch</p>

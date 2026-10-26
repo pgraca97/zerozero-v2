@@ -73,6 +73,11 @@ const GAPS: LevelDef = {
 
 export const LEVELS: LevelDef[] = [makeClassicLevel(), PYRAMID, GAPS];
 
+/** Only the first N levels are playable for now; the menu's Levels entry stays disabled until levels are designed. */
+export const UNLOCKED_LEVELS = 1;
+
+export const isLevelUnlocked = (index: number) => index >= 0 && index < UNLOCKED_LEVELS;
+
 export function resolveLevel(def: LevelDef): ResolvedLevel {
   const cols = def.rows.reduce((m, r) => Math.max(m, r.length), 0);
   const bricks: PlacedBrick[] = [];
