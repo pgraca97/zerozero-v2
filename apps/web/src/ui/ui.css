@@ -115,6 +115,7 @@ html, body, #root {
 .btn.primary:hover { background: #5aa0e9; }
 .btn.ghost { border-color: #555; color: #bbb; font-size: 16px; }
 .btn.small { font-size: 14px; padding: 6px 14px; }
+.btn:disabled { border-color: #555; color: #777; background: transparent; transform: none; cursor: url('/assets/Cursors/disabled.png') 8 8, not-allowed; }
 
 .hint { color: #9aa; font-size: 13px; margin: 0; }
 .highscore-line { font-family: 'ArcadeClassic', sans-serif; color: var(--gold); margin: 0; }
