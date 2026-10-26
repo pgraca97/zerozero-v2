@@ -99,6 +99,12 @@ export class Game extends Phaser.Scene {
     this.bindInput();
     this.bindCommands();
 
+    // Dev-only handle so e2e tests and tooling can read live game state
+    // (ball/paddle positions). Tree-shaken from production builds.
+    if (import.meta.env.DEV) {
+      (window as Window & { __ZZ_GAME__?: Game }).__ZZ_GAME__ = this;
+    }
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
   }
 
