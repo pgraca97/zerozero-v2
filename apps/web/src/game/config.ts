@@ -108,7 +108,7 @@ export const brickBrokenKey = (c: BrickColor) => `brickBroken_${c}`;
 export const powerUpKey = (t: PowerUpType) => `pu_${t}`;
 export const starKey = (c: 'blue' | 'green' | 'red') => `star_${c}`;
 
-const BASE = import.meta.env.BASE_URL; // '/zerozero/' in prod, '/' in dev
+const BASE = import.meta.env.BASE_URL; // '/' unless VITE_BASE overrides it
 export const assetUrl = (rel: string) => `${BASE}assets/${rel}`;
 
 export interface ImageAsset {

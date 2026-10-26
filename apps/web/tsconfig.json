@@ -1,0 +1,4 @@
+{
+  "extends": "@zerozero/tsconfig/react-app.json",
+  "include": ["src", "tests", "vite.config.ts", "playwright.config.ts"]
+}

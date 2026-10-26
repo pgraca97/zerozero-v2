@@ -26,7 +26,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL — tests navigate with page.goto('./'). */
-    baseURL: 'http://localhost:5173/zerozero/',
+    baseURL: 'http://localhost:5173/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -67,7 +67,7 @@ export default defineConfig({
   /* Auto-start the Vite dev server before the tests (reused if already up). */
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:5173/zerozero/',
+    url: 'http://localhost:5173/',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

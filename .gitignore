@@ -2,8 +2,16 @@ node_modules
 dist
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Turborepo
+.turbo
+
+# Env (Supabase keys etc.)
+.env
+.env.*
+!.env.example
