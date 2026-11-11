@@ -1,14 +1,14 @@
-# Backend design (deferred — pre-reference)
+# Backend design (deferred - pre-reference)
 
-Status: **not built.** This is a forward-looking outline so a future session can pick it up without re-deciding the basics. Nothing here is wired yet; the game runs fully on localStorage.
+Status: **not built.** Design outline for the online layer. Nothing here is wired yet; the game runs fully on localStorage.
 
 ## Goal
 
-Add an online layer (global leaderboard first) **without** giving up static hosting on GitHub Pages and **without** rewriting the game. The persistence seam already exists: [src/state/storage.ts](../src/state/storage.ts) isolates localStorage, and the `Game` scene already emits `game-over` / `level-won` with the final score over the EventBus — that is where a submit hooks in.
+Add an online layer (global leaderboard first) **without** giving up static hosting on Cloudflare Workers and **without** rewriting the game. The persistence seam already exists: [storage.ts](../apps/web/src/state/storage.ts) isolates localStorage, and the `Game` scene already emits `game-over` / `level-won` with the final score over the EventBus. That is where a submit hooks in.
 
 ## Why Supabase
 
-Hosted Postgres + auto REST API + Auth + Realtime + Edge Functions, with a browser SDK and a generous free tier. The SDK talks **directly from the browser** (secured by Row Level Security), so no server to run and gh-pages keeps working. SQL + realtime + RLS fit a leaderboard better than Firebase's NoSQL; a bespoke API would be more upkeep for no gain at this size.
+Hosted Postgres + auto REST API + Auth + Realtime + Edge Functions, with a browser SDK and a generous free tier. The SDK talks **directly from the browser** (secured by Row Level Security), so there is no server to run and the static Workers deploy keeps working. SQL + realtime + RLS fit a leaderboard better than Firebase's NoSQL; a bespoke API would be more upkeep for no gain at this size.
 
 ## Architecture fit
 
@@ -24,10 +24,12 @@ Phaser Game ──emit('game-over' | 'level-won', {score, levelId})──► Eve
 ```
 
 - Keep localStorage as the **offline cache + personal best**; Supabase is additive, never a hard dependency (game must still play offline).
-- New React screen `leaderboard` (add to the `Screen` union in [src/game/types.ts](../src/game/types.ts)) fetches and renders top scores.
+- New React screen `leaderboard` (add to the `Screen` union in [types.ts](../apps/web/src/game/types.ts)) fetches and renders top scores.
 - All network code lives under `src/state/` (or a new `src/services/`); the game scene stays backend-agnostic and keeps only emitting events.
 
-## Data model (Phase 1 — anonymous leaderboard)
+## Data model (Phase 1: anonymous leaderboard)
+
+> Predates [scoring.md](scoring.md), which settles on run scores plus per-level bests (`RunResult` / `LevelResult`). Revise this schema to match before building Phase 1.
 
 ```sql
 create table public.scores (
@@ -47,12 +49,12 @@ create policy "scores readable" on public.scores
   for select using (true);
 
 -- MVP: allow anonymous inserts; the CHECK constraints bound the values.
--- (Tighten later — see Anti-cheat.)
+-- (Tighten later, see Anti-cheat.)
 create policy "scores insertable" on public.scores
   for insert with check (true);
 ```
 
-### Phase 2 — accounts (optional)
+### Phase 2: accounts (optional)
 ```sql
 create table public.profiles (
   id           uuid primary key references auth.users(id) on delete cascade,
@@ -89,27 +91,27 @@ export async function getTopScores(levelId: string, limit = 10) {
 }
 ```
 
-The `VITE_SUPABASE_ANON_KEY` is **public-safe** (RLS is the real guard) — it gets inlined at build time. For gh-pages, inject both `VITE_` vars in the GitHub Actions build step (repo secrets) or commit them (anon key only, never the service-role key). Add `.env.local` to `.gitignore` for local dev.
+The `VITE_SUPABASE_ANON_KEY` is **public-safe** (RLS is the real guard); it gets inlined at build time. Set both `VITE_` vars as build variables in the Cloudflare Workers build settings (never the service-role key). Add `.env.local` to `.gitignore` for local dev.
 
 ## Anti-cheat (decide before "real" leaderboards)
 
-A browser-direct insert is trivially spoofable — anyone can POST any score. Mitigation ladder, cheapest first:
+A browser-direct insert is trivially spoofable: anyone can POST any score. Mitigation ladder, cheapest first:
 1. **MVP / accept it**: CHECK constraints + RLS. Fine for a hobby board; expect some junk.
 2. **Edge Function gate**: deny direct table insert; submit through a Supabase Edge Function that validates (range, plausibility, rate-limit per IP/session).
 3. **Signed runs**: client sends score + an HMAC over a server-issued session nonce; function verifies.
-4. **Server replay** (overkill): submit the input log; server simulates the run deterministically and computes the score. Requires a headless/deterministic core — a rabbit hole.
+4. **Server replay** (overkill): submit the input log; server simulates the run deterministically and computes the score. Requires a headless/deterministic core, which is a rabbit hole.
 
 ## Phasing
 
 - **Phase 0 (now):** localStorage only. Seam ready. ✅
-- **Phase 1 (MVP, ~half day):** anonymous global leaderboard — name prompt on game-over, `submitScore`, a top-10 React screen per level. Accept cheat risk (#1).
+- **Phase 1 (MVP, ~half day):** anonymous global leaderboard: name prompt on game-over, `submitScore`, a top-10 React screen per level. Accept cheat risk (#1).
 - **Phase 2:** auth (anon → linked), per-user best, cloud-synced settings/progress.
 - **Phase 3:** realtime leaderboard (`supabase.channel(...).on('postgres_changes', ...)`).
 - **Phase 4:** custom/shared levels + daily challenge (store `LevelDef` JSON + a daily seed; reuses the data-driven level system).
 
 ## Open decisions
 
-- Per-level boards vs one global board (schema supports per-level via `level_id`).
+- ~~Per-level boards vs one global board~~: decided in [scoring.md](scoring.md) (run board + per-level bests).
 - Name entry: one-off prompt (anonymous) vs requiring a profile.
 - Anonymous-allowed vs login-required to submit.
 - Free-tier limits / project region.
@@ -122,4 +124,4 @@ A browser-direct insert is trivially spoofable — anyone can POST any score. Mi
 4. Run the Phase-1 SQL (table + RLS) in the Supabase SQL editor.
 5. Add `src/state/supabase.ts` + `src/state/leaderboard.ts`; hook `submitScore` to a `game-over`/`level-won` listener.
 6. Add the `leaderboard` screen + a "Leaderboard" menu button.
-7. Add the `VITE_` vars to the gh-pages build (Actions secrets) so `pnpm deploy` ships them.
+7. Add the `VITE_` vars to the Cloudflare Workers build settings so the deployed build ships them.
