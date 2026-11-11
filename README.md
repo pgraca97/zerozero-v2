@@ -64,7 +64,7 @@ The game runs at a fixed virtual resolution (480×640) and Phaser scales it to f
 ## Project structure
 
 ```
-apps/web/            the game — React UI + Phaser canvas
+apps/web/            the game - React UI + Phaser canvas
   src/game/          Phaser scenes, game objects, level + power-up data, EventBus
   src/ui/            React screens and components
   tests/             Playwright e2e specs
