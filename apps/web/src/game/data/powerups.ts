@@ -13,56 +13,70 @@ export interface PowerUpDef {
   /** Shows a countdown bar in the HUD while active. */
   hasTimer: boolean;
   kind: 'attack' | 'defense' | 'challenge';
+  /** Brick points multiplier while active (1 = no bonus). */
+  risk: number;
 }
 
 export const POWER_UPS: Record<PowerUpType, PowerUpDef> = {
   bullets: {
     type: 'bullets', kind: 'attack', hasTimer: true,
     label: 'Bullets', message: 'Bullets activated! Press SPACE / UP to shoot!',
+    risk: 1,
   },
   magnet: {
     type: 'magnet', kind: 'attack', hasTimer: false,
     label: 'Magnet', message: 'Magnet! The ball sticks — press SPACE to launch!',
+    risk: 1,
   },
   slowBall: {
     type: 'slowBall', kind: 'defense', hasTimer: true,
     label: 'Slow Ball', message: 'Slow Ball! The ball is now slower!',
+    risk: 1,
   },
   bigBar: {
     type: 'bigBar', kind: 'defense', hasTimer: true,
     label: 'Big Bar', message: 'Big Bar! Your paddle is now bigger!',
+    risk: 1,
   },
   life: {
     type: 'life', kind: 'defense', hasTimer: false,
     label: 'Life', message: 'Extra life!',
+    risk: 1,
   },
   slowBar: {
     type: 'slowBar', kind: 'challenge', hasTimer: true,
     label: 'Slow Bar', message: 'Slow Bar! Your paddle moves slower!',
+    risk: 1.5,
   },
   multiball: {
     type: 'multiball', kind: 'challenge', hasTimer: false,
     label: 'Multiball', message: 'Multiball! Now you have multiple balls!',
+    risk: 1,
   },
   invertedCommands: {
     type: 'invertedCommands', kind: 'challenge', hasTimer: true,
     label: 'Inverted', message: 'Inverted Commands! Controls are reversed!',
+    risk: 2,
   },
   smallBar: {
     type: 'smallBar', kind: 'challenge', hasTimer: true,
     label: 'Small Bar', message: 'Small Bar! Your paddle is now smaller!',
+    risk: 2,
   },
   fastBall: {
     type: 'fastBall', kind: 'challenge', hasTimer: true,
     label: 'Fast Ball', message: 'Fast Ball! The ball is now super speedy!',
+    risk: 2,
   },
   fastBar: {
     type: 'fastBar', kind: 'challenge', hasTimer: true,
     label: 'Fast Bar', message: 'Fast Bar! Your paddle moves faster!',
+    risk: 1.5,
   },
   smallBall: {
     type: 'smallBall', kind: 'challenge', hasTimer: true,
     label: 'Small Ball', message: 'Small Ball! The ball is now smaller!',
+    risk: 2,
   },
 };
 
