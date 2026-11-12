@@ -63,6 +63,16 @@ export const BULLET_SPEED = 360;
 
 export const START_LIVES = 3;
 
+// --- Scoring ---
+export const CHAIN_STEP = 0.5;
+export const CHAIN_MULTIPLIER_CAP = 3;
+// Fractions of levelBase
+export const PERFECT_BONUS_RATE = 0.25;
+export const TIME_BONUS_MAX_RATE = 0.5;
+export const PAR_TIME_PER_HIT_MS = 2000;
+export const LIVES_BONUS_RATE = 0.10;
+export const LEVEL_SPEED_STEP = 0.05;
+
 export const BRICK_COLORS: BrickColor[] = [
   'black', 'blue', 'brown', 'gold', 'green', 'lightblue',
   'orange', 'pink', 'purple', 'red', 'silver', 'yellow',
