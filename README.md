@@ -4,7 +4,7 @@
 
 A retro brick-breaker for the browser, built as a production-style web app: React UI over a Phaser game canvas, typed end to end, tested in CI and deployed on every push.
 
-### ▶ [Play it live](https://zerozero-v2.paulodcgraca.workers.dev)
+**[Play it live](https://zerozero-v2.paulodcgraca.workers.dev)**
 
 <p align="center">
   <img src="docs/media/gameplay.gif" alt="ZeroZero gameplay: the paddle bounces the ball into rows of bricks while a multiball power-up splits it into three" width="390">
@@ -54,17 +54,10 @@ flowchart LR
 
 The game runs at a fixed virtual resolution (480×640) and Phaser scales it to fit, so all gameplay values are authored in one coordinate space and there is no scale-factor math.
 
-## Technical decisions
-
-- **React for the UI, Phaser for the game only.** Text, buttons and overlays stay accessible and easy to style as DOM, and Phaser does what it is good at: physics and rendering at 120 Hz. Keeping a typed event contract between them makes each side testable and replaceable.
-- **Phaser is lazy-loaded.** It is about 88% of the JavaScript. A static import kept the page blank until all 1.9 MB had downloaded. Now the entry chunk is 212 kB (67 kB gzip), React paints the loading screen at once, and `modulepreload` hints fetch Phaser in parallel. On a throttled connection (1.6 Mbps, 150 ms RTT; median of 5 interleaved runs), **first paint dropped from 2.7 s to 1.3 s** and time to a playable menu stayed the same (4.6 → 4.7 s). Lazy-loading without the preload painted even sooner (0.8 s) but made the menu 0.5 s slower, so the preload variant shipped.
-- **Monorepo from day one.** `apps/web` is the game; the upcoming backend (Supabase migrations, shared types) gets its own package without restructuring.
-- **Cloudflare Workers static assets** for hosting: free global CDN, automatic deploys from `main` and a preview URL for every branch.
-
 ## Project structure
 
 ```
-apps/web/            the game - React UI + Phaser canvas
+apps/web/            the game: React UI + Phaser canvas
   src/game/          Phaser scenes, game objects, level + power-up data, EventBus
   src/ui/            React screens and components
   tests/             Playwright e2e specs
@@ -72,17 +65,29 @@ packages/tsconfig/   shared TypeScript presets
 docs/                design notes (backend plan)
 ```
 
-## Running locally
+## How to run
 
 Requires Node 24 and pnpm.
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:5173
-pnpm check    # typecheck + build + e2e tests (same gate as CI)
+pnpm dev
 ```
 
-## Roadmap
+The game runs at `http://localhost:5173`. `pnpm check` runs the same gate as CI: typecheck, build and the end-to-end tests.
+
+## Tests
+
+Four Playwright end-to-end tests in `apps/web/tests/` check that the game boots to the menu with a rendered canvas, starts and shows the HUD without errors, activates a power-up and keeps the levels menu locked. CI runs them on every push and pull request to `main`, after the typecheck and the build.
+
+## Decisions
+
+- **React for the UI, Phaser for the game only.** Text, buttons and overlays stay accessible and easy to style as DOM, and Phaser does what it is good at: physics and rendering at 120 Hz. Keeping a typed event contract between them makes each side testable and replaceable.
+- **Phaser is lazy-loaded.** It is about 88% of the JavaScript. A static import kept the page blank until all 1.9 MB had downloaded. Now the entry chunk is 212 kB (67 kB gzip), React paints the loading screen at once, and `modulepreload` hints fetch Phaser in parallel. On a throttled connection (1.6 Mbps, 150 ms RTT; median of 5 interleaved runs), **first paint dropped from 2.7 s to 1.3 s** and time to a playable menu stayed the same (4.6 → 4.7 s). Lazy-loading without the preload painted even sooner (0.8 s) but made the menu 0.5 s slower, so the preload variant shipped.
+- **Monorepo from day one.** `apps/web` is the game; the upcoming backend (Supabase migrations, shared types) gets its own package without restructuring.
+- **Cloudflare Workers static assets** for hosting: free global CDN, automatic deploys from `main` and a preview URL for every branch.
+
+## Next steps
 
 - [x] Migrate from p5.js to React + Phaser + TypeScript
 - [x] Monorepo, CI, Cloudflare deploy
@@ -91,7 +96,3 @@ pnpm check    # typecheck + build + e2e tests (same gate as CI)
 - [ ] Server-side score validation to block cheating (Edge Function)
 - [ ] Accounts and personal stats
 - [ ] Level editor with shareable levels
-
----
-
-The first version (static, GitHub Pages) is frozen at [pgraca97/zerozero](https://github.com/pgraca97/zerozero), playable at [pgraca97.github.io/zerozero](https://pgraca97.github.io/zerozero/).
